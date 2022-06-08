@@ -20,11 +20,11 @@ async function main() {
 
 // Schema
 const articleSchema = {
-  title: String, 
+  title: String,
   content: String
-}
+};
 // Creating model
-const Article = mongoose.model ("Article", articleSchema);
+const Article = mongoose.model("Article", articleSchema);
 
 app.use(bodyParser.urlencoded({
   extended: true
@@ -32,34 +32,32 @@ app.use(bodyParser.urlencoded({
 app.use(express.static("public"));
 
 // create a get route that fetches all the articles
-app.get("/articles", function (req, res) {
-  Article.find(function (err, foundArticles) {
+app.get("/articles", function(req, res) {
+  Article.find(function(err, foundArticles) {
     if (!err) {
     // sending all items from our database to browser
       res.send(foundArticles);
     } else {
       res.send(err);
-    };
+    }
   });
 });
 
 // POST requests
-app.post("/articles", function (req, res) {
-  
-  const newArticle = new Article ({
+app.post("/articles", function(req, res) {
+  // creating a new document:
+  const newArticle = new Article({
     title: req.body.title,
     content:req.body.content
   });
-
-  newArticle.save(function (err) {
-    if(!err) {
+  // saving a new document into db:
+  newArticle.save(function(err) {
+    if (!err) {
       res.send("Successfully added a new article.");
     } else {
       res.send(err);
     }
-
   });
-
 });
 
 
