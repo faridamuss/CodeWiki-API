@@ -31,12 +31,18 @@ app.use(bodyParser.urlencoded({
 }));
 app.use(express.static("public"));
 
-
-
-// respond with "hello world" when a GET request is made to the homepage
-app.get('/', (req, res) => {
-  res.send('hello world')
+// create a get route that fetches all the articles
+app.get("/articles", function (req, res) {
+  Article.find(function (err, foundArticles) {
+    if (!err) {
+    // sending all items from our database to browser
+      res.send(foundArticles);
+    } else {
+      res.send(err);
+    };
+  });
 });
+
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}`);
