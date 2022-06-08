@@ -60,6 +60,15 @@ app.post("/articles", function(req, res) {
   });
 });
 
+// delete all articles
+app.delete("/articles", function(req, res) {
+  Article.deleteMany(function(err) {
+    if (!err) {
+      res.send("Successfully deleted all articles.");
+    }
+  });
+});
+
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}`);
