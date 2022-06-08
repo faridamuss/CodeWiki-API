@@ -11,6 +11,11 @@ const app = express();
 // Setting ejs as a viewing engine
 app.set('view engine', 'ejs');
 
+app.use(bodyParser.urlencoded({
+  extended: true
+}));
+app.use(express.static("public"));
+
 // Setup mongoose connection:
 main().catch(err => console.log(err));
 
@@ -26,48 +31,36 @@ const articleSchema = {
 // Creating model
 const Article = mongoose.model("Article", articleSchema);
 
-app.use(bodyParser.urlencoded({
-  extended: true
-}));
-app.use(express.static("public"));
-
-// create a get route that fetches all the articles
-app.get("/articles", function(req, res) {
-  Article.find(function(err, foundArticles) {
-    if (!err) {
-    // sending all items from our database to browser
-      res.send(foundArticles);
-    } else {
-      res.send(err);
-    }
+app.route("/articles")
+  .get(function(req, res) {
+    Article.find(function(err, foundArticles) {
+      if (!err) {
+        res.send(foundArticles);
+      } else {
+        res.send(err);
+      }
+    });
+  })
+  .post(function(req, res) {
+    const newArticle = new Article({
+      title: req.body.title,
+      content:req.body.content
+    });
+    newArticle.save(function(err) {
+      if (!err) {
+        res.send("Successfully added a new article.");
+      } else {
+        res.send(err);
+      }
+    });
+  })
+  .delete(function(req, res) {
+    Article.deleteMany(function(err) {
+      if (!err) {
+        res.send("Successfully deleted all articles.");
+      }
+    });
   });
-});
-
-// POST requests
-app.post("/articles", function(req, res) {
-  // creating a new document:
-  const newArticle = new Article({
-    title: req.body.title,
-    content:req.body.content
-  });
-  // saving a new document into db:
-  newArticle.save(function(err) {
-    if (!err) {
-      res.send("Successfully added a new article.");
-    } else {
-      res.send(err);
-    }
-  });
-});
-
-// delete all articles
-app.delete("/articles", function(req, res) {
-  Article.deleteMany(function(err) {
-    if (!err) {
-      res.send("Successfully deleted all articles.");
-    }
-  });
-});
 
 
 app.listen(PORT, () => {
