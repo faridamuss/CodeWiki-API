@@ -35,7 +35,8 @@ const Article = mongoose.model("Article", articleSchema);
 
 // ///////////////////////// Requests targeting all Articles //////////////////
 
-app.route("/articles")
+app
+  .route("/articles")
   .get(function(req, res) {
     Article.find(function(err, foundArticles) {
       if (!err) {
@@ -68,21 +69,23 @@ app.route("/articles")
 
 /////////////////////////// Requests targeting a Specific Articles //////////////////
 
-app.route("/articles/:articleTitle")
-
+app
+  .route("/articles/:articleTitle")
   .get(function(req, res) {
-    Article.findOne({ title: req.params.articleTitle }, function(err, foundArticle) {
-      if (foundArticle) {
-        res.send(foundArticle);
-      } else {
-        res.send("No articles matching that title was found.");
+    Article.findOne(
+      { title: req.params.articleTitle },
+      function(err, foundArticle) {
+        if (foundArticle) {
+          res.send(foundArticle);
+        } else {
+          res.send("No articles matching that title was found.");
+        }
       }
-    });
+    );
   })
-
   .put(function(req, res) {
     Article.replaceOne(
-      {title: req.params.articleTitle},
+      { title: req.params.articleTitle },
       req.body,
       function(err) {
         if (!err) {
@@ -92,22 +95,29 @@ app.route("/articles/:articleTitle")
         }
       }
     );
-  });
-
-// Updating one field of data in the document
-app.patch("/articles/:articleTitle", function(req, res) {
-  Article.updateOne(
-    {title: req.params.articleTitle},
-    {$set: req.body},
-    function(err) {
+  })
+  .patch(function(req, res) {
+    Article.updateOne(
+      { title: req.params.articleTitle },
+      { $set: req.body },
+      function(err) {
+        if (!err) {
+          res.send("Successfully updated article!");
+        } else {
+          res.send(err);
+        }
+      }
+    );
+  })
+  .delete(function(req, res) {
+    Article.deleteOne({ title: req.params.articleTitle }, function(err) {
       if (!err) {
-        res.send("Successfully updated article!");
+        res.send("Successfully deleted the corresponding article!");
       } else {
         res.send(err);
       }
-    }
-  );
-});
+    });
+  });
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}`);
