@@ -1,26 +1,28 @@
 // Web server config
-const express = require('express');
-const bodyParser = require('body-parser');
-const ejs = require('ejs');
-const mongoose = require('mongoose');
+const express = require("express");
+const bodyParser = require("body-parser");
+const ejs = require("ejs");
+const mongoose = require("mongoose");
 
 const PORT = process.env.PORT || 3000;
 
 // creating an app using express
 const app = express();
 // Setting ejs as a viewing engine
-app.set('view engine', 'ejs');
+app.set("view engine", "ejs");
 
-app.use(bodyParser.urlencoded({
-  extended: true
-}));
+app.use(
+  bodyParser.urlencoded({
+    extended: true
+  })
+);
 app.use(express.static("public"));
 
 // Setup mongoose connection:
-main().catch(err => console.log(err));
+main().catch((err) => console.log(err));
 
 async function main() {
-  await mongoose.connect('mongodb://localhost:27017/wikidb');
+  await mongoose.connect("mongodb://localhost:27017/wikidb");
 }
 
 // Schema
@@ -31,7 +33,7 @@ const articleSchema = {
 // Creating model
 const Article = mongoose.model("Article", articleSchema);
 
- // ///////////////////////// Requests targeting all Articles //////////////////
+// ///////////////////////// Requests targeting all Articles //////////////////
 
 app.route("/articles")
   .get(function(req, res) {
@@ -46,7 +48,7 @@ app.route("/articles")
   .post(function(req, res) {
     const newArticle = new Article({
       title: req.body.title,
-      content:req.body.content
+      content: req.body.content
     });
     newArticle.save(function(err) {
       if (!err) {
@@ -64,23 +66,34 @@ app.route("/articles")
     });
   });
 
-  /////////////////////////// Requests targeting a Specific Articles //////////////////
+/////////////////////////// Requests targeting a Specific Articles //////////////////
 
-  app.route("/articles/:articleTitle")
-   .get(function (req, res) {
-     const articleTitle = req.params.articleTitle;
-     Article.findOne({title: articleTitle}, function(err, foundArticle) {
-       if (foundArticle) {
-         res.send(foundArticle)
-       } else {
-         res.send("No articles matching that title was found.")
-       }
-     })
-   });
+app.route("/articles/:articleTitle")
 
+  .get(function(req, res) {
+    Article.findOne({ title: req.params.articleTitle }, function(err, foundArticle) {
+      if (foundArticle) {
+        res.send(foundArticle);
+      } else {
+        res.send("No articles matching that title was found.");
+      }
+    });
+  })
+
+  .put(function(req, res) {
+    Article.replaceOne(
+      {title: req.params.articleTitle},
+      req.body,
+      function(err) {
+        if (!err) {
+          res.send("Successfully updated!");
+        } else {
+          res.send(err);
+        }
+      }
+    );
+  });
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}`);
 });
-
-
