@@ -94,6 +94,21 @@ app.route("/articles/:articleTitle")
     );
   });
 
+// Updating one field of data in the document
+app.patch("/articles/:articleTitle", function(req, res) {
+  Article.updateOne(
+    {title: req.params.articleTitle},
+    {$set: req.body},
+    function(err) {
+      if (!err) {
+        res.send("Successfully updated article!");
+      } else {
+        res.send(err);
+      }
+    }
+  );
+});
+
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}`);
 });
