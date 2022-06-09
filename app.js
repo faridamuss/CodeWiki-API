@@ -31,6 +31,8 @@ const articleSchema = {
 // Creating model
 const Article = mongoose.model("Article", articleSchema);
 
+ // ///////////////////////// Requests targeting all Articles //////////////////
+
 app.route("/articles")
   .get(function(req, res) {
     Article.find(function(err, foundArticles) {
@@ -62,8 +64,23 @@ app.route("/articles")
     });
   });
 
+  /////////////////////////// Requests targeting a Specific Articles //////////////////
+
+  app.route("/articles/:articleTitle")
+   .get(function (req, res) {
+     const articleTitle = req.params.articleTitle;
+     Article.findOne({title: articleTitle}, function(err, foundArticle) {
+       if (foundArticle) {
+         res.send(foundArticle)
+       } else {
+         res.send("No articles matching that title was found.")
+       }
+     })
+   });
+
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}`);
 });
+
 
